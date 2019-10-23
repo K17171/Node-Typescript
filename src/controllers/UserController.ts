@@ -1,24 +1,29 @@
 import User from '../models/User';
 import {Utils} from '../utils/Utils';
+import {NodeMailer} from '../utils/NodeMailer';
 
 export class UserController {
     static async signUp(req, res, next) {
         const email = req.body.email;
         const password = req.body.password;
         const username = req.body.username;
+        const verificationToken = Utils.generateVerificationToken();
         const data = {
             email: email,
             password: password,
             username: username,
-            verification_token: Utils.generateVerificationToken(),
+            verification_token: verificationToken,
             verification_token_time: Date.now() + new Utils().MAX_TOKEN_TIME,
             created_at: new Date(),
             updated_at: new Date()
         };
         try {
             let user = await new User(data).save();
-            // Send Verification Email
             res.send(user);
+            await NodeMailer.sendEmail({
+                to: ['shagungarg2010@gmail.com'], subject: 'Email Verification',
+                html: `<h1>${verificationToken}</h1>`
+            })
         } catch (e) {
             next(e);
         }
