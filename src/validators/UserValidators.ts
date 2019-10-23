@@ -16,6 +16,11 @@ export class UserValidators {
                 .isLength({min: 8, max: 20}).withMessage('Password can be from 8-20 Characters only'),
             body('username', 'Username is Required').isString()];
     }
+
+    static verifyUser() {
+        return [body('verification_token', 'Verification Token is Required').isNumeric()
+            , body('email', 'Email is Required').isEmail()]
+    }
 }
 
 
