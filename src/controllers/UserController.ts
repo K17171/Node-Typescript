@@ -46,4 +46,26 @@ export class UserController {
             next(e);
         }
     }
+
+    static async resendVerificationEmail(req, res, next) {
+        const email = req.query.email;
+        const verificationToken = Utils.generateVerificationToken();
+        try {
+            const user: any = await User.findOneAndUpdate({email: email}, {
+                verification_token: verificationToken,
+                verification_token_time: Date.now() + new Utils().MAX_TOKEN_TIME
+            });
+            if (user) {
+                 await NodeMailer.sendEmail({
+                    to: [user.email], subject: 'Email Verification',
+                    html: `<h1>${verificationToken}</h1>`
+                });
+                res.json({success: true})
+            } else {
+                throw  Error('User Does Not Exist');
+            }
+        } catch (e) {
+            next(e);
+        }
+    }
 }
