@@ -3,14 +3,16 @@ import {Utils} from '../utils/Utils';
 import {NodeMailer} from '../utils/NodeMailer';
 import * as Bcrypt from 'bcrypt';
 import * as Jwt from 'jsonwebtoken';
+import {getEnvironmentVariables} from '../environments/env';
 
 export class UserController {
     static async signUp(req, res, next) {
         const email = req.body.email;
         const username = req.body.username;
+        const password = req.body.password;
         const verificationToken = Utils.generateVerificationToken();
         try {
-            const hash = await UserController.encryptPassword(req, res, next);
+            const hash = await Utils.encryptPassword(password);
             const data = {
                 email: email,
                 password: hash,
@@ -29,18 +31,6 @@ export class UserController {
         } catch (e) {
             next(e);
         }
-    }
-
-    private static async encryptPassword(req, res, next) {
-        return new Promise((resolve, reject) => {
-            Bcrypt.hash(req.body.password, 10, (err, hash) => {
-                if (err) {
-                    reject(err);
-                } else {
-                    resolve(hash);
-                }
-            })
-        })
     }
 
     static async verify(req, res, next) {
@@ -83,24 +73,20 @@ export class UserController {
         }
     }
 
-    static login(req, res, next) {
+    static async login(req, res, next) {
         const password = req.query.password;
-        Bcrypt.compare(password, req.user.password, ((err, isValid) => {
-            if (err) {
-                next(new Error(err.message));
-            } else if (!isValid) {
-                next(new Error('Email & Password Does Not Match'));
-            } else {
-                const data = {
-                    user_id: req.user._id,
-                    email: req.user.email
-                };
-                const token = Jwt.sign(data, 'secret', {expiresIn: '120d'});
-                res.json({
-                    token: token,
-                    user: req.user
-                })
-            }
-        }));
+        const user = req.user;
+        try {
+            await Utils.comparePassword({
+                plainPassword: password,
+                encryptedPassword: user.password
+            });
+            const token = Jwt.sign({email: user.email, _id: user._id},
+                getEnvironmentVariables().db_url, {expiresIn: '120d'});
+            const data = {token: token, user: user};
+            res.json(data);
+        } catch (e) {
+            next(e);
+        }
     }
 }
