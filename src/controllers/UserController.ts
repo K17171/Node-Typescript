@@ -1,7 +1,6 @@
 import User from '../models/User';
 import {Utils} from '../utils/Utils';
 import {NodeMailer} from '../utils/NodeMailer';
-import * as Bcrypt from 'bcrypt';
 import * as Jwt from 'jsonwebtoken';
 import {getEnvironmentVariables} from '../environments/env';
 
@@ -35,7 +34,7 @@ export class UserController {
 
     static async verify(req, res, next) {
         const verificationToken = req.body.verification_token;
-        const email = req.body.email;
+        const email = req.user.email;
         try {
             const user = await User.findOneAndUpdate({
                 email: email, verification_token: verificationToken,
@@ -52,7 +51,7 @@ export class UserController {
     }
 
     static async resendVerificationEmail(req, res, next) {
-        const email = req.query.email;
+        const email = req.user.email;
         const verificationToken = Utils.generateVerificationToken();
         try {
             const user: any = await User.findOneAndUpdate({email: email}, {
