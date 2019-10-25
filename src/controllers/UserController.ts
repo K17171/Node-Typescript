@@ -2,6 +2,7 @@ import User from '../models/User';
 import {Utils} from '../utils/Utils';
 import {NodeMailer} from '../utils/NodeMailer';
 import * as Bcrypt from 'bcrypt';
+import * as Jwt from 'jsonwebtoken';
 
 export class UserController {
     static async signUp(req, res, next) {
@@ -80,5 +81,26 @@ export class UserController {
         } catch (e) {
             next(e);
         }
+    }
+
+    static login(req, res, next) {
+        const password = req.query.password;
+        Bcrypt.compare(password, req.user.password, ((err, isValid) => {
+            if (err) {
+                next(new Error(err.message));
+            } else if (!isValid) {
+                next(new Error('Email & Password Does Not Match'));
+            } else {
+                const data = {
+                    user_id: req.user._id,
+                    email: req.user.email
+                };
+                const token = Jwt.sign(data, 'secret', {expiresIn: '120d'});
+                res.json({
+                    token: token,
+                    user: req.user
+                })
+            }
+        }));
     }
 }
