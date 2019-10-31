@@ -109,6 +109,21 @@ export class UserController {
         }
     }
 
+    static async resetPassword(req, res, next) {
+        const user = req.user;
+        const newPassword = req.body.new_password;
+        try {
+            const encryptedPassword = await Utils.encryptPassword(newPassword);
+            const updatedUser = await User.findOneAndUpdate({_id: user._id}, {
+                updated_at: new Date(),
+                password: encryptedPassword
+            }, {new: true});
+            res.send(updatedUser);
+        } catch (e) {
+            next(e);
+        }
+    }
+
     static async sendResetPasswordEmail(req, res, next) {
         const email = req.query.email;
         const resetPasswordToken = Utils.generateVerificationToken();

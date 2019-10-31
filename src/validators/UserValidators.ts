@@ -35,6 +35,35 @@ export class UserValidators {
                 })]
     }
 
+    static resetPassword() {
+        return [body('email', 'Email is Required').isEmail().custom((email, {req}) => {
+            return User.findOne({email: email}).then(user => {
+                if (user) {
+                    req.user = user;
+                    return true;
+                } else {
+                    throw  new Error('User Does Not Exist');
+                }
+            });
+        }), body('new_password', 'New Password is Required').isAlphanumeric().custom((newPassword, {req}) => {
+            if (newPassword === req.body.confirm_password) {
+                return true;
+            } else {
+                throw new Error('Confirm Password and new Password Does not Match');
+            }
+        }),
+            body('confirm_password', 'Confirm Password is Required').isAlphanumeric(),
+            body('reset_password_token', 'Reset Password Token').isNumeric()
+                .custom((token, {req}) => {
+                    if (Number(req.user.reset_password_token) === Number(token)) {
+                        return true
+                    } else {
+                        req.errorStatus = 422;
+                        throw  new Error('Reset Password Token is Invalid.Please Try Again');
+                    }
+                })]
+    }
+
     static login() {
         return [query('email', 'Email is Required').isEmail()
             .custom((email, {req}) => {
