@@ -29,10 +29,10 @@ class UserRouter {
     }
 
     patchRoutes() {
-        this.router.patch('/verify', UserValidators.verifyUser(), GlobalMiddleWare.checkError,
-            GlobalMiddleWare.authenticate, UserController.verify);
-        this.router.patch('/update/password', UserValidators.updatePassword(), GlobalMiddleWare.checkError,
-            GlobalMiddleWare.authenticate, UserController.updatePassword);
+        this.router.patch('/verify', GlobalMiddleWare.authenticate, UserValidators.verifyUser(), GlobalMiddleWare.checkError,
+            UserController.verify);
+        this.router.patch('/update/password', GlobalMiddleWare.authenticate, UserValidators.updatePassword(), GlobalMiddleWare.checkError,
+            UserController.updatePassword);
         this.router.patch('/reset/password', UserValidators.resetPassword(), GlobalMiddleWare.checkError, UserController.resetPassword);
         this.router.patch('/update/profilePic', GlobalMiddleWare.authenticate, new Utils().multer.single('profile_pic'), UserValidators.updateProfilePic(), GlobalMiddleWare.checkError,
             UserController.updateProfilePic)
