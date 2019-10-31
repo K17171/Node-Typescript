@@ -80,8 +80,8 @@ export class UserController {
                 plainPassword: password,
                 encryptedPassword: user.password
             });
-            const token = Jwt.sign({email: user.email, _id: user._id},
-                getEnvironmentVariables().db_url, {expiresIn: '120d'});
+            const token = Jwt.sign({email: user.email, user_id: user._id},
+                getEnvironmentVariables().jwt_secret, {expiresIn: '120d'});
             const data = {token: token, user: user};
             res.json(data);
         } catch (e) {
@@ -147,5 +147,19 @@ export class UserController {
         res.json({
             success: true
         })
+    }
+
+    static async updateProfilePic(req, res, next) {
+        const userId = req.user.user_id;
+        const fileUrl = 'http://localhost:5000/' + req.file.path;
+        try {
+            const user = await User.findOneAndUpdate({_id: userId}, {
+                updated_at: new Date(),
+                profile_pic_url: fileUrl
+            }, {new: true});
+            res.send(user);
+        } catch (e) {
+            next(e);
+        }
     }
 }

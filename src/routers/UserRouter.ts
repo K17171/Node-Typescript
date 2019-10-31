@@ -2,6 +2,7 @@ import {Router} from 'express';
 import {UserController} from '../controllers/UserController';
 import {UserValidators} from '../validators/UserValidators';
 import {GlobalMiddleWare} from '../middlewares/GlobalMiddleWare';
+import {Utils} from '../utils/Utils';
 
 class UserRouter {
     public router: Router;
@@ -20,7 +21,7 @@ class UserRouter {
         this.router.get('/reset/password', UserValidators.sendResetPasswordEmail(), GlobalMiddleWare.checkError,
             UserController.sendResetPasswordEmail);
         this.router.get('/verify/resetPasswordToken', UserValidators.verifyResetPasswordToken(), GlobalMiddleWare.checkError,
-        UserController.verifyResetPasswordToken)
+            UserController.verifyResetPasswordToken)
     }
 
     postRoutes() {
@@ -32,7 +33,9 @@ class UserRouter {
             GlobalMiddleWare.authenticate, UserController.verify);
         this.router.patch('/update/password', UserValidators.updatePassword(), GlobalMiddleWare.checkError,
             GlobalMiddleWare.authenticate, UserController.updatePassword);
-        this.router.patch('/reset/password',UserValidators.resetPassword(),GlobalMiddleWare.checkError,UserController.resetPassword)
+        this.router.patch('/reset/password', UserValidators.resetPassword(), GlobalMiddleWare.checkError, UserController.resetPassword);
+        this.router.patch('/update/profilePic', GlobalMiddleWare.authenticate, new Utils().multer.single('profile_pic'), UserValidators.updateProfilePic(), GlobalMiddleWare.checkError,
+            UserController.updateProfilePic)
     }
 
     deleteRoutes() {
