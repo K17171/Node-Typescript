@@ -48,6 +48,35 @@ export class UserValidators {
                 });
             }), query('password', 'Password is Required').isAlphanumeric()]
     }
+
+    static sendResetPasswordEmail() {
+        return [query('email', 'Email is Required').isEmail()
+            .custom((email) => {
+                return User.findOne({email: email}).then((user) => {
+                    if (user) {
+                        return true;
+                    } else {
+                        throw new Error('Email Does not Exist');
+                    }
+                })
+            })];
+    }
+
+    static verifyResetPasswordToken() {
+        return [query('reset_password_token', 'Reset Password Token is Required')
+            .isNumeric().custom((token, {req}) => {
+                return User.findOne({
+                    reset_password_token: token,
+                    reset_password_token_time: {$gt: Date.now()}
+                }).then((user) => {
+                    if (user) {
+                        return true;
+                    } else {
+                        throw new Error('Token Doest Not Exist.Please Request For a New One');
+                    }
+                })
+            })]
+    }
 }
 
 
