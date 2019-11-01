@@ -5,7 +5,8 @@ const postSchema = new mongoose.Schema({
     user_id: {type: mongoose.Types.ObjectId, required: true},
     created_at: {type: Date, required: true},
     updated_at: {type: Date, required: true},
-    content: {type: String, required: true}
+    content: {type: String, required: true},
+    comments: [{type: mongoose.Types.ObjectId, ref: 'comments'}]
 });
 
 export default model('posts', postSchema);
