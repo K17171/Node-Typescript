@@ -15,7 +15,8 @@ class PostRouter {
     }
 
     getRoutes() {
-        this.router.get('/me', GlobalMiddleWare.authenticate,PostController.getPostByUser)
+        this.router.get('/me', GlobalMiddleWare.authenticate,PostController.getPostByUser);
+        this.router.get('/all',GlobalMiddleWare.authenticate,PostController.getAllPosts);
     }
 
     postRoutes() {
