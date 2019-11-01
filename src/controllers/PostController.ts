@@ -16,4 +16,15 @@ export class PostController {
             next(err);
         });
     }
+
+    static async getPostByUser(req, res, next) {
+        const userId = req.user.user_id;
+        try {
+            const posts = await Post.find({user_id: userId}, {user_id: 0, __v: 0})
+                .populate('comments').exec();
+            res.send(posts);
+        } catch (e) {
+            next(e);
+        }
+    }
 }

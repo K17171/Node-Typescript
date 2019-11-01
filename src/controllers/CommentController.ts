@@ -1,4 +1,3 @@
-import Post from '../models/Post';
 import Comment from '../models/Comment';
 
 export class CommentController {
@@ -12,7 +11,7 @@ export class CommentController {
                 updated_at: new Date()
             });
             post.comments.push(comment);
-            await Promise.all([comment.save(), post.save()])
+            await Promise.all([comment.save(), post.save()]);
             res.send(comment);
         } catch (e) {
             next(e);

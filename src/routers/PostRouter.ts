@@ -15,7 +15,7 @@ class PostRouter {
     }
 
     getRoutes() {
-
+        this.router.get('/me', GlobalMiddleWare.authenticate,PostController.getPostByUser)
     }
 
     postRoutes() {
