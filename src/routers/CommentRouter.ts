@@ -24,12 +24,13 @@ class CommentRouter {
     }
 
     patchRoutes() {
-        this.router.patch('/edit/:id',GlobalMiddleWare.authenticate,CommentValidators.editComment(),
-            GlobalMiddleWare.checkError,CommentController.editComment);
+        this.router.patch('/edit/:id', GlobalMiddleWare.authenticate, CommentValidators.editComment(),
+            GlobalMiddleWare.checkError, CommentController.editComment);
     }
 
     deleteRoutes() {
-
+        this.router.delete('/delete/:id',GlobalMiddleWare.authenticate,
+            CommentValidators.deleteComment(),GlobalMiddleWare.checkError,CommentController.deleteComment)
     }
 }
 
