@@ -3,6 +3,8 @@ import {Utils} from '../utils/Utils';
 import {NodeMailer} from '../utils/NodeMailer';
 import * as Jwt from 'jsonwebtoken';
 import {getEnvironmentVariables} from '../environments/env';
+import * as Request from 'request';
+import * as Cheerio from 'cheerio';
 
 export class UserController {
     static async signUp(req, res, next) {
@@ -160,5 +162,22 @@ export class UserController {
         } catch (e) {
             next(e);
         }
+    }
+
+    static test(req, res, next) {
+        Request('https://webscraper.io/test-sites/e-commerce/allinone', ((error, response, html) => {
+            if (!error && response.statusCode == 200) {
+                const $ = Cheerio.load(html);
+                const data = [];
+                $('.thumbnail').each((index, element) => {
+                    const image = $(element).find('.img-responsive').attr('src');
+                    const title = $(element).find('.title').text();
+                    const description = $(element).find('.description').text();
+                    const price = $(element).find('.price').text();
+                    data.push({title: title, image: image, description: description, price: price});
+                });
+                res.send(data);
+            }
+        }))
     }
 }
